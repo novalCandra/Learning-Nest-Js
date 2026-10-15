@@ -5,7 +5,7 @@ import { AppService } from './app.service.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
-@Module({
+@Module({ // anonations
   imports: [
     // Distributed tracing, auto-correlated logs, request/job metrics, error
     // telemetry, alarms, and more — out of the box. Sign up at https://observe.nestjs.com
