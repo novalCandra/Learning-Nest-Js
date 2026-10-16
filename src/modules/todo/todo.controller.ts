@@ -1,7 +1,8 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from "@nestjs/common";
 import { TodoService } from "./todo.service.js";
-import { CreateTodoDto } from "../../dto/create-todo.dto.js";
-import { UpdateTodoDto } from "../../dto/update-todo.dto.js";
+import { CreateTodoDto } from "./dto/create-todo.dto.js";
+import { UpdateTodoDto } from "./dto/update-todo.dto.js";
+import { GetTodosDto } from "./dto/get-todo.dto.js";
 
 @Controller('todos')
 export class TodoController {
@@ -13,8 +14,9 @@ export class TodoController {
 
     // Query params
     @Get("/todoQuery")
-    queryTodos(@Query() query: { label: string }) {
-        return this.todoService.getDataQuery
+    queryTodos(@Query() query: GetTodosDto) {
+        const data = this.todoService.getDataQuery(query);
+        return data
     }
 
     @Post()
@@ -23,9 +25,8 @@ export class TodoController {
     }
 
     @Patch("/:todoId")
-    updateTodo(@Param("todoId") todoId: string, @Body() updateTodoBody: UpdateTodoDto) {
-        const parseNumber = Number.parseInt(todoId)
-        return this.todoService.updateTodo(parseNumber, updateTodoBody)
+    updateTodo(@Param("todoId", ParseIntPipe) todoId: number, @Body() updateTodoBody: UpdateTodoDto) {
+        return this.todoService.updateTodo(todoId, updateTodoBody)
     }
 
     @Delete("/:todoId")

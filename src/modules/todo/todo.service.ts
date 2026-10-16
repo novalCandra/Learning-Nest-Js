@@ -1,59 +1,51 @@
-import { Injectable, Query } from "@nestjs/common";
-import { GetTodosDto } from "../../dto/get-todo.dto.js";
-import { CreateTodoDto } from "../../dto/create-todo.dto.js";
-import { UpdateTodoDto } from "../../dto/update-todo.dto.js";
+import { BadRequestException, Injectable, Query } from "@nestjs/common";
+import { CreateTodoDto } from "./dto/create-todo.dto.js";
+import { UpdateTodoDto } from "./dto/update-todo.dto.js";
+import { TodoRepository } from "./todo.repository.js";
+import { GetTodosDto } from "./dto/get-todo.dto.js";
 
-type typeTodo = {
-    id: number;
-    label: string;
-}
-
-// Data Dumy
-let todos: typeTodo[] = [
-    {
-        id: 1,
-        label: "novel"
-    },
-    {
-        id: 2,
-        label: "komik"
-    },
-    {
-        id: 3,
-        label: "rakyat"
-    },
-    {
-        id: 4,
-        label: "dongeng"
-    }
-]
 @Injectable()
 export class TodoService {
+    constructor(private readonly todoRepository: TodoRepository) { }
     // service get todosh
-    getTodosAll() {
-        return todos
+    async getTodosAll() {
+        const allTodos = await this.todoRepository.findyMany()
+        return allTodos
     }
 
-    getDataQuery(@Query() query: GetTodosDto) {
-        return todos
-    }
-
-    createTodo(createTodoBody: CreateTodoDto) {
-        todos.push(createTodoBody)
-        return todos
-    }
-
-    deleteTodo(todoId: number) {
-        const deletedata = todos.filter(todo => todo.id != todoId)
-        return deletedata
-    }
-
-    updateTodo(todoId: number, updateTodoBody: UpdateTodoDto) {
-        const updateDataIndex = todos.findIndex(todo => todo.id === todoId);
-        todos[updateDataIndex] = {
-            id: todoId,
-            ...updateTodoBody
+    async getDataQuery(query: GetTodosDto) {
+        if (query.overdue) {
+            return this.todoRepository.findOverdueTodo();
         }
-        return todos
+        return await this.todoRepository.fitDeatilsData();
+    }
+
+    async createTodo(createTodoBody: CreateTodoDto) {
+        const createData = await this.todoRepository.createTodo(createTodoBody)
+        return createData
+    }
+
+    async deleteTodo(todoId: number) {
+        const data = await this.todoRepository.deleteTodo(todoId)
+        console.log(data)
+        return {
+            message: "success delete data",
+            status: true
+        }
+
+    }
+
+    async updateTodo(todoId: number, updateTodoBody: UpdateTodoDto) {
+        // all data and update
+        // const todos = await this.todoRepository.findyMany()
+        // return todos
+
+        // logic check todo
+        const todoExitings = await this.todoRepository.findById(todoId);
+        if (!todoExitings) {
+            throw new BadRequestException('todo does not exists')
+        }
+
+        return await this.todoRepository.updateTodo(todoId, updateTodoBody)
     }
 }
