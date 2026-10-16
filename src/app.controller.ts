@@ -1,7 +1,5 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service.js';
-import { CreateTodoDto } from './dto/create-todo.dto.js';
-import { UpdateTodoDto } from './dto/update-todo.dto.js';
 
 @Controller()
 export class AppController {
